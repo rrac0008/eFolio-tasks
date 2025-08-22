@@ -25,24 +25,34 @@
             <div class="row mb-3 g-3">
               <div class="col-6">
                 <div class="form-check mt-2">
-                  <input type="checkbox" class="form-check-input" id="isAustralian"  v-model="formData.isAustralian"/>
+                  <input type="checkbox" class="form-check-input" id="isAustralian" 
+                    @change="validateResident(true)" 
+                    v-model="formData.isAustralian"/>
                   <label class="form-check-label" for="isAustralian">Australian Resident?</label>
                 </div>
+                <div v-if="errors.resident" class="text-danger">{{ errors.resident }}</div>
               </div>
               <div class="col-6">
                 <label for="gender" class="form-label">Gender</label>
-                <select class="form-select" id="gender"  v-model="formData.gender">
+                <select class="form-select" id="gender" 
+                  @change="validateGender(true)"
+                  v-model="formData.gender">
                   <option value="" disabled>Select</option>
                   <option value="male">Male</option>
                   <option value="female">Female</option>
                   <option value="other">Other</option>
                 </select>
+                <div v-if="errors.gender" class="text-danger">{{ errors.gender }}</div>
               </div>
             </div>
             <div class="row mb-3 g-3">
               <div class="col-12">
                 <label for="reason" class="form-label">Reason for joining</label>
-                <textarea class="form-control" id="reason" rows="3"  v-model="formData.reason"></textarea>
+                <textarea class="form-control" id="reason" rows="3"
+                  @blur="() => validateReason(true)"
+                  @input="() => validateReason(false)" 
+                  v-model="formData.reason"></textarea>
+                  <div v-if="errors.reason" class="text-danger">{{ errors.reason }}</div>
               </div>
             </div>
             <div class="d-flex gap-2">
@@ -74,6 +84,10 @@
 
 <script setup>
 import { ref } from 'vue';
+import DataTable from 'primevue/datatable';
+import Column from 'primevue/column';
+
+const components = { DataTable, Column };
   
   const formData = ref({
       username: '',
@@ -87,9 +101,18 @@ import { ref } from 'vue';
   
   const submitForm = () => {
     validateName(true);
-    if(!errors.value.username && !errors.value.password) {
-        submittedCards.value.push({...formData.value});
-        clearForm();
+    validatePassword(true);
+    validateResident(true);
+    validateGender(true);
+    validateReason(true);
+  
+    if (
+      !errors.value.username && !errors.value.password && !errors.value.resident && !errors.value.gender &&!errors.value.reason
+    ) {
+      submittedCards.value.push({
+        ...formData.value
+      });
+      clearForm();
     }
   };
 
@@ -139,6 +162,30 @@ const validatePassword = (blur) => {
       if (blur) errors.value.password = "Password must contain at least one special character.";
     } else {
       errors.value.password = null;
+    }
+  };
+
+  const validateResident = (blur) => {
+    if (!formData.value.isAustralian) {
+      if (blur) errors.value.resident = "Select your residency status.";
+    } else {
+      errors.value.resident = null;
+    }
+  };
+  
+  const validateGender = (blur) => {
+    if (!formData.value.gender) {
+      if (blur) errors.value.gender = "Please select your gender.";
+    } else {
+      errors.value.gender = null;
+    }
+  };
+  
+  const validateReason = (blur) => {
+    if (formData.value.reason.trim().length < 10) {
+      if (blur) errors.value.reason = "Reason must be at least 10 characters long.";
+    } else {
+      errors.value.reason = null;
     }
   };
 </script>
