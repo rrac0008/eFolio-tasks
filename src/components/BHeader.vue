@@ -1,18 +1,50 @@
 <template>
-    <!-- Using Bootstrap's Header template (starter code) -->
-    <!-- https://getbootstrap.com/docs/5.0/examples/headers/ -->
+    <!-- Bootstrap Header -->
     <div class="container">
-      <header class="d-flex justify-content-center py-3">
+      <header class="d-flex justify-content-between align-items-center py-3">
+        <!-- Navigation links -->
         <ul class="nav nav-pills">
           <li class="nav-item">
-            <a href="#" class="nav-link active" aria-current="page">Home (Week 4)</a>
+            <router-link to="/" class="nav-link" active-class="active" aria-current="page">
+              Home (Week 5)
+            </router-link>
           </li>
-          <li class="nav-item"><a href="#" class="nav-link">About</a></li>
-          <li class="nav-item"><a href="#" class="nav-link">Contact us</a></li>
+          <li class="nav-item">
+            <router-link to="/about" class="nav-link" active-class="active">
+              About
+            </router-link>
+          </li>
         </ul>
+  
+        <!-- Logout button -->
+        <div>
+          <button
+            v-if="auth"
+            class="btn btn-outline-danger btn-sm"
+            @click="handleLogout"
+          >
+            Logout
+          </button>
+        </div>
       </header>
     </div>
   </template>
+  
+  <script setup>
+  import { computed } from 'vue'
+  import { useRouter } from 'vue-router'
+  import { isAuthenticated, logout } from '../auth'
+  
+  const router = useRouter()
+  
+  // Reactive computed for auth state
+  const auth = computed(() => isAuthenticated.value)
+  
+  const handleLogout = () => {
+    logout()
+    router.push('/login')
+  }
+  </script>
   
   <style scoped>
   .b-example-divider {
